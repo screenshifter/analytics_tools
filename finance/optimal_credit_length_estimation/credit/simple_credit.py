@@ -2,7 +2,7 @@ def _calculate_monthly_payment(amount, rate, months):
     """Calculate monthly payment for given loan parameters"""
     if rate == 0:
         return amount / months
-    
+
     rate_factor = (1 + rate) ** months
     numerator = rate * rate_factor
     denominator = rate_factor - 1
@@ -10,10 +10,10 @@ def _calculate_monthly_payment(amount, rate, months):
 
 
 def calculate_credit(credit_parameters):
-    """Calculates credit payments for different loan terms
+    """Calculates credit payments for different loan terms. Additionally calculates total credit cost adjusted to inflation in "today's" money
 
     Args:
-        credit_parameters (dict): Contains "Credit amount" and "Credit rate"
+        credit_parameters (dict): Contains "Credit amount", "Credit rate", "Expected inflation"
 
     Returns:
         dict: Results for each year (3-30) with monthly payment and total cost

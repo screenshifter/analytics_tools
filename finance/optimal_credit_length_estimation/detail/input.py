@@ -12,10 +12,10 @@ def parse_input(filepath):
     Returns:
         A Python library representation of the input parameters or 'False' if an error occured
     """
-    # Sanitize filepath to prevent path traversal
-    filepath = os.path.normpath(filepath)
-    if ".." in filepath:
-        log_error("Path traversal detected")
+    # Sanitize filepath
+    filepath = os.path.abspath(os.path.normpath(filepath))
+    if not os.path.exists(filepath):
+        log_error(f"File not found: {filepath}")
         return False
 
     with open(filepath) as input_file:
