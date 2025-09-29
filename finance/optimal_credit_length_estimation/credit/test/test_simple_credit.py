@@ -1,6 +1,6 @@
 import unittest
 import math
-from ..simple_credit import calculate_credit
+from ..simple_credit import calculate_credit, calculate_credit_with_overpayment
 
 
 class TestSimpleCreditCalculation(unittest.TestCase):
@@ -97,6 +97,66 @@ class TestSimpleCreditCalculation(unittest.TestCase):
         self.assertLess(
             low_results[15]["monthly_payment"], high_results[15]["monthly_payment"]
         )
+
+
+class TestCreditWithOverpayment(unittest.TestCase):
+    
+    def setUp(self):
+        self.test_params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [2.0],
+            "Acceptable monthly payment": [1000],
+            "Investment interest rate": [4.0]
+        }
+    
+    def test_no_overpayment_scenario(self):
+        """Test when acceptable payment is lower than required payment"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [500]
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # Should have results for all years
+        self.assertEqual(len(results), 28)
+        
+        # Check that actual_months field is present
+        for year, data in results.items():
+            self.assertIn("actual_months", data)
+            self.assertIn("monthly_payment", data)
+            self.assertIn("total_cost", data)
+            self.assertIn("total_cost_adjusted", data)
+            self.assertIn("investment_balance", data)
+            self.assertEqual(data["investment_balance"], 0)
+    
+    def test_with_overpayment_scenario(self):
+        """Test when overpayment reduces loan term"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [2000]
+        
+        results = calculate_credit_with_overpayment(params)
+        standard_results = calculate_credit(params)
+        
+        # With overpayment, actual months should be less than standard for longer terms
+        long_term_year = 20
+        self.assertLessEqual(results[long_term_year]["actual_months"], long_term_year * 12)
+        
+        # Monthly payment should equal acceptable payment when overpayment occurs
+        if standard_results[long_term_year]["monthly_payment"] < params["Acceptable monthly payment"][0]:
+            self.assertEqual(results[long_term_year]["monthly_payment"], params["Acceptable monthly payment"][0])
+    
+    def test_overpayment_reduces_total_cost(self):
+        """Test that overpayment reduces total interest paid"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [1500]
+        
+        overpayment_results = calculate_credit_with_overpayment(params)
+        standard_results = calculate_credit(params)
+        
+        # For longer terms, overpayment should reduce total cost
+        year = 25
+        if standard_results[year]["monthly_payment"] < params["Acceptable monthly payment"][0]:
+            self.assertLess(overpayment_results[year]["total_cost"], standard_results[year]["total_cost"])
 
 
 if __name__ == "__main__":
