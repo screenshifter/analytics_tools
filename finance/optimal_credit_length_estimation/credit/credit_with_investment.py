@@ -34,7 +34,8 @@ def calculate_credit_with_investment(credit_results, credit_parameters):
         results[years] = {
             'monthly_payment': actual_monthly_payment,
             'total_cost': total_cost_with_investment,
-            'total_cost_adjusted': round(total_cost_adjusted_with_investment, 2)
+            'total_cost_adjusted': round(total_cost_adjusted_with_investment, 2),
+            'investment_balance': round(investment_balance, 2)
         }
     
     return results
