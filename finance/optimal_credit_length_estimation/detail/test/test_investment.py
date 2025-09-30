@@ -27,14 +27,14 @@ class TestInvestmentCalculation(unittest.TestCase):
         self.assertAlmostEqual(result, round(expected, 2), places=2)
 
     def test_zero_years(self):
-        """Test calculation with zero investment period"""
-        result = calculate_simple_investment(25000, 1000, 7.0, 0)
-        self.assertEqual(result, 25000)  # Only initial investment, no time to grow
+        """Test calculation with zero investment period raises ValueError"""
+        with self.assertRaises(ValueError):
+            calculate_simple_investment(25000, 1000, 7.0, 0)
 
     def test_all_zeros(self):
-        """Test calculation with all zero inputs"""
-        result = calculate_simple_investment(0, 0, 0.0, 0)
-        self.assertEqual(result, 0.0)
+        """Test calculation with all zero inputs raises ValueError for zero years"""
+        with self.assertRaises(ValueError):
+            calculate_simple_investment(0, 0, 0.0, 0)
 
     def test_basic_calculation(self):
         """Test basic investment calculation with known values"""
