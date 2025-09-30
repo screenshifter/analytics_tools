@@ -262,7 +262,7 @@ class TestCreditWithOverpayment(unittest.TestCase):
     - Inflation impact: Zero, positive, negative with overpayment
     - Edge cases: Extreme values, boundary conditions
 
-    Method: Boundary value analysis + equivalence partitioning
+    Method: Boundary value analysis + equivalence class partitioning
     """
 
     def setUp(self):
@@ -471,7 +471,7 @@ class TestCreditWithInvestment(unittest.TestCase):
     - Edge cases: Extreme values, boundary conditions
     - Output consistency: Required fields, proper calculations
 
-    Method: Boundary value analysis + equivalence partitioning
+    Method: Boundary value analysis + equivalence class partitioning
     """
 
     def setUp(self):
