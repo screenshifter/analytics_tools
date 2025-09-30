@@ -1,8 +1,9 @@
-from typing import Dict, Any
+from typing import Any
 from detail.investment import calculate_simple_investment
+from detail.types import CreditCalculationResult
 
 
-def calculate_credit_with_investment(credit_results: Dict[int, Dict[str, float]], credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
+def calculate_credit_with_investment(credit_results: dict[int, CreditCalculationResult], credit_parameters: dict[str, Any]) -> dict[int, CreditCalculationResult]:
     """Calculate credit results with investment of payment difference
     
     Args:
@@ -16,7 +17,7 @@ def calculate_credit_with_investment(credit_results: Dict[int, Dict[str, float]]
     investment_rate = credit_parameters["Investment interest rate"][0]
     inflation_rate = credit_parameters["Expected inflation"][0]
     
-    results = {}
+    results: dict[int, CreditCalculationResult] = {}
     
     for years, data in credit_results.items():
         actual_monthly_payment = max(acceptable_monthly_payment, data['monthly_payment'])
@@ -32,11 +33,11 @@ def calculate_credit_with_investment(credit_results: Dict[int, Dict[str, float]]
         inflation_factor = (1 + inflation_rate / 100) ** years
         total_cost_adjusted_with_investment = total_cost_with_investment / inflation_factor
         
-        results[years] = {
-            'monthly_payment': actual_monthly_payment,
-            'total_cost': total_cost_with_investment,
-            'total_cost_adjusted': round(total_cost_adjusted_with_investment, 2),
-            'investment_balance': round(investment_balance, 2)
-        }
+        results[years] = CreditCalculationResult(
+            monthly_payment=actual_monthly_payment,
+            total_cost=total_cost_with_investment,
+            total_cost_adjusted=round(total_cost_adjusted_with_investment, 2),
+            investment_balance=round(investment_balance, 2)
+        )
     
     return results

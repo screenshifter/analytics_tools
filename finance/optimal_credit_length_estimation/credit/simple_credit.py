@@ -1,4 +1,5 @@
-from typing import Dict, Any
+from typing import Any
+from detail.types import CreditCalculationResult
 
 
 def _calculate_monthly_payment(amount: float, rate: float, months: int) -> float:
@@ -12,7 +13,7 @@ def _calculate_monthly_payment(amount: float, rate: float, months: int) -> float
     return amount * (numerator / denominator)
 
 
-def calculate_credit(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
+def calculate_credit(credit_parameters: dict[str, Any]) -> dict[int, CreditCalculationResult]:
     """Calculates credit payments for different loan terms. Additionally calculates total credit cost adjusted to inflation in "today's" money
 
     Args:
@@ -29,7 +30,7 @@ def calculate_credit(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, f
         credit_parameters["Expected inflation"][0] / 100
     )  # Annual inflation rate
 
-    results = {}
+    results: dict[int, CreditCalculationResult] = {}
     for years in range(3, 31):
         months = years * 12
 
@@ -42,17 +43,17 @@ def calculate_credit(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, f
         inflation_factor = (1 + inflation_rate) ** years
         total_cost_adjusted = total_cost / inflation_factor
 
-        results[years] = {
-            "monthly_payment": round(monthly_payment, 2),
-            "total_cost": round(total_cost, 2),
-            "total_cost_adjusted": round(total_cost_adjusted, 2),
-            "investment_balance": 0,
-        }
+        results[years] = CreditCalculationResult(
+            monthly_payment=round(monthly_payment, 2),
+            total_cost=round(total_cost, 2),
+            total_cost_adjusted=round(total_cost_adjusted, 2),
+            investment_balance=0,
+        )
 
     return results
 
 
-def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
+def calculate_credit_with_overpayment(credit_parameters: dict[str, Any]) -> dict[int, CreditCalculationResult]:
     """Calculates credit with overpayment when monthly payment is below acceptable threshold
     
     Args:
@@ -66,7 +67,7 @@ def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict
     inflation_rate = credit_parameters["Expected inflation"][0] / 100
     acceptable_payment = credit_parameters["Acceptable monthly payment"][0]
     
-    results = {}
+    results: dict[int, CreditCalculationResult] = {}
     for years in range(3, 31):
         months = years * 12
         
@@ -79,16 +80,14 @@ def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict
             inflation_factor = (1 + inflation_rate) ** years
             total_cost_adjusted = total_cost / inflation_factor
             
-            results[years] = {
-                "monthly_payment": round(standard_payment, 2),
-                "total_cost": round(total_cost, 2),
-                "total_cost_adjusted": round(total_cost_adjusted, 2),
-                "investment_balance": 0,
-                "actual_months": months
-            }
+            results[years] = CreditCalculationResult(
+                monthly_payment=round(standard_payment, 2),
+                total_cost=round(total_cost, 2),
+                total_cost_adjusted=round(total_cost_adjusted, 2),
+                investment_balance=0,
+            )
         else:
             # Calculate with overpayment
-            overpayment = acceptable_payment - standard_payment
             actual_payment = acceptable_payment
             
             # Calculate actual payoff time with overpayment
@@ -128,12 +127,11 @@ def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict
             inflation_factor = (1 + inflation_rate) ** years
             total_cost_adjusted = total_cost_with_investment / inflation_factor
             
-            results[years] = {
-                "monthly_payment": round(actual_payment, 2),
-                "total_cost": round(total_cost_with_investment, 2),
-                "total_cost_adjusted": round(total_cost_adjusted, 2),
-                "investment_balance": round(investment_balance, 2),
-                "actual_months": actual_months
-            }
+            results[years] = CreditCalculationResult(
+                monthly_payment=round(actual_payment, 2),
+                total_cost=round(total_cost_with_investment, 2),
+                total_cost_adjusted=round(total_cost_adjusted, 2),
+                investment_balance=round(investment_balance, 2),
+            )
     
     return results
