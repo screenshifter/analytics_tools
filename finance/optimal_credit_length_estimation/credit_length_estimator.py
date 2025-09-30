@@ -45,9 +45,7 @@ def main() -> None:
 
     # Calculate credits
     credit_results = calculate_credit(credit_parameters)
-    investment_results = calculate_credit_with_investment(
-        credit_results, credit_parameters
-    )
+    investment_results = calculate_credit_with_investment(credit_parameters)
     overpayment_results = calculate_credit_with_overpayment(credit_parameters)
 
     # Print and visualize the results
