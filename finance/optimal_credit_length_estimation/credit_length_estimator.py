@@ -1,6 +1,6 @@
 import sys
 from typing import Dict, Any
-from detail.input import parse_input, validate_input, write_test_input
+from detail.input import parse_input, validate_input
 from credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
 from detail.visualization import plot_credit_results
 from credit.credit_with_investment import calculate_credit_with_investment
@@ -28,9 +28,6 @@ def main() -> None:
         else (sys.path[0] + "/input/default_input.json")
     )
     print(f"Credit parameters input file path: {filepath}")
-
-    # if not write_test_input(filepath):
-    #     sys.exit("Unable to write test file")
 
     credit_parameters = parse_input(filepath)
     if not credit_parameters:
