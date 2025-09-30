@@ -1,4 +1,7 @@
-def _calculate_monthly_payment(amount, rate, months):
+from typing import Dict, Any
+
+
+def _calculate_monthly_payment(amount: float, rate: float, months: int) -> float:
     """Calculate monthly payment for given loan parameters"""
     if rate == 0:
         return amount / months
@@ -9,7 +12,7 @@ def _calculate_monthly_payment(amount, rate, months):
     return amount * (numerator / denominator)
 
 
-def calculate_credit(credit_parameters):
+def calculate_credit(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
     """Calculates credit payments for different loan terms. Additionally calculates total credit cost adjusted to inflation in "today's" money
 
     Args:
@@ -49,7 +52,7 @@ def calculate_credit(credit_parameters):
     return results
 
 
-def calculate_credit_with_overpayment(credit_parameters):
+def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
     """Calculates credit with overpayment when monthly payment is below acceptable threshold
     
     Args:

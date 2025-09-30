@@ -1,17 +1,17 @@
 import sys
+from typing import Dict, Any
 from detail.input import parse_input, validate_input, write_test_input
-from detail.investment import calculate_simple_investment
 from credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
 from detail.visualization import plot_credit_results
 from credit.credit_with_investment import calculate_credit_with_investment
 
 
-def print_credit_parameters(credit_parameters):
+def print_credit_parameters(credit_parameters: Dict[str, Any]) -> None:
     for key in credit_parameters:
         print(f"{key}: {credit_parameters.get(key)}")
 
 
-def print_credit_results(results, calculation_name):
+def print_credit_results(results: Dict[int, Dict[str, float]], calculation_name: str) -> None:
     """Print credit calculation results in a standardized format"""
     print(f"\n{calculation_name}:")
     for years, data in results.items():
@@ -21,7 +21,7 @@ def print_credit_results(results, calculation_name):
         )
 
 
-def main():
+def main() -> None:
     filepath = (
         sys.argv[1]
         if len(sys.argv) > 1
