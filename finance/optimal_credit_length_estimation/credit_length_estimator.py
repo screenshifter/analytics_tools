@@ -5,7 +5,7 @@ from python.runfiles import runfiles
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 from typing import Dict, Any
-from finance.optimal_credit_length_estimation.detail.input import parse_input, validate_input, write_test_input
+from finance.optimal_credit_length_estimation.detail.input import parse_input, validate_input
 from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
 from finance.optimal_credit_length_estimation.detail.visualization import plot_credit_results
 from finance.optimal_credit_length_estimation.credit.credit_with_investment import calculate_credit_with_investment
@@ -35,9 +35,6 @@ def main() -> None:
         )
     )
     print(f"Credit parameters input file path: {filepath}")
-
-    # if not write_test_input(filepath):
-    #     sys.exit("Unable to write test file")
 
     credit_parameters = parse_input(filepath)
     if not credit_parameters:
