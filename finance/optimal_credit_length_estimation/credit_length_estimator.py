@@ -2,9 +2,12 @@ import sys
 from typing import Any
 from detail.input import parse_input, validate_input
 from detail.types import CreditCalculationResult
-from credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
+from credit.simple_credit import (
+    calculate_credit,
+    calculate_credit_with_overpayment,
+    calculate_credit_with_investment,
+)
 from detail.visualization import plot_credit_results
-from credit.credit_with_investment import calculate_credit_with_investment
 
 
 def print_credit_parameters(credit_parameters: dict[str, Any]) -> None:
