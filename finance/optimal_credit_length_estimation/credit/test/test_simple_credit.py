@@ -4,6 +4,19 @@ from ..simple_credit import calculate_credit, calculate_credit_with_overpayment
 
 
 class TestSimpleCreditCalculation(unittest.TestCase):
+    """
+    Unit tests for calculate_credit function using equivalence class partitioning.
+    
+    Test Categories:
+    - Basic functionality: Known calculations, zero interest, inflation adjustment
+    - Input ranges: Zero, small, large credit amounts
+    - Interest rate classes: 0%, near-zero, low, medium, high (>15%)
+    - Inflation rate classes: Zero, low, medium (3-10%), high (>10%), negative
+    - Behavioral relationships: Term vs payment, rate vs payment
+    - Output structure: Required fields, investment balance always zero
+    
+    Method: Boundary value analysis + equivalence class partitioning
+    """
 
     def test_basic_calculation(self):
         """Test basic credit calculation with known values"""
@@ -98,8 +111,147 @@ class TestSimpleCreditCalculation(unittest.TestCase):
             low_results[15]["monthly_payment"], high_results[15]["monthly_payment"]
         )
 
+    def test_zero_credit_amount(self):
+        """Test calculation with zero credit amount"""
+        credit_params = {
+            "Credit amount": 0,
+            "Credit rate": [5.0],
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        # All payments and costs should be zero
+        for year, data in results.items():
+            self.assertEqual(data["monthly_payment"], 0)
+            self.assertEqual(data["total_cost"], 0)
+            self.assertEqual(data["total_cost_adjusted"], 0)
+
+    def test_high_interest_rate(self):
+        """Test calculation with high interest rate (>15%)"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [20.0],
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        # High rate should result in very high monthly payments
+        result_10y = results[10]
+        self.assertGreater(result_10y["monthly_payment"], 1500)
+        self.assertGreater(result_10y["total_cost"], 180000)
+
+    def test_medium_inflation_rate(self):
+        """Test calculation with medium inflation rate (3% < rate <= 10%)"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [7.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        result_10y = results[10]
+        # With 7% inflation, adjusted cost should be significantly lower
+        inflation_factor = (1 + 0.07) ** 10
+        expected_adjusted = result_10y["total_cost"] / inflation_factor
+        self.assertAlmostEqual(result_10y["total_cost_adjusted"], expected_adjusted, places=2)
+        self.assertLess(result_10y["total_cost_adjusted"], result_10y["total_cost"] * 0.6)
+
+    def test_high_inflation_rate(self):
+        """Test calculation with high inflation rate (>10%)"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [15.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        result_10y = results[10]
+        # With 15% inflation, adjusted cost should be much lower
+        self.assertLess(result_10y["total_cost_adjusted"], result_10y["total_cost"] * 0.3)
+
+    def test_negative_inflation_deflation(self):
+        """Test calculation with negative inflation (deflation)"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [-2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        result_10y = results[10]
+        # With deflation, adjusted cost should be higher than nominal
+        self.assertGreater(result_10y["total_cost_adjusted"], result_10y["total_cost"])
+
+    def test_very_small_credit_amount(self):
+        """Test calculation with very small credit amount"""
+        credit_params = {
+            "Credit amount": 0.5,
+            "Credit rate": [5.0],
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        # Should handle small amounts without errors
+        result_10y = results[10]
+        self.assertGreater(result_10y["monthly_payment"], 0)
+        self.assertLess(result_10y["monthly_payment"], 10)
+
+    def test_very_large_credit_amount(self):
+        """Test calculation with very large credit amount"""
+        credit_params = {
+            "Credit amount": 10000000,  # 10 million
+            "Credit rate": [5.0],
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        # Should handle large amounts proportionally
+        result_10y = results[10]
+        self.assertGreater(result_10y["monthly_payment"], 100000)
+        self.assertGreater(result_10y["total_cost"], 10000000)
+
+    def test_very_small_interest_rate(self):
+        """Test calculation with very small positive interest rate"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [0.01],  # 0.01%
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        result_10y = results[10]
+        # Very low rate should result in payment close to zero-interest case
+        zero_interest_payment = 100000 / (10 * 12)
+        self.assertAlmostEqual(result_10y["monthly_payment"], zero_interest_payment, delta=10)
+
+    def test_investment_balance_always_zero(self):
+        """Test that investment balance is always zero for calculate_credit"""
+        credit_params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [2.0],
+        }
+        results = calculate_credit(credit_params)
+        
+        # Investment balance should always be 0 for basic credit calculation
+        for year, data in results.items():
+            self.assertEqual(data["investment_balance"], 0)
+
 
 class TestCreditWithOverpayment(unittest.TestCase):
+    """
+    Unit tests for calculate_credit_with_overpayment function using equivalence class partitioning.
+    
+    Test Categories:
+    - Payment scenarios: Below required, equal, above required payment
+    - Overpayment behavior: Early payoff, investment calculation, cost adjustment
+    - Input ranges: Zero, small, large amounts and rates
+    - Investment rates: Zero, low, medium, high vs credit rate
+    - Inflation impact: Zero, positive, negative with overpayment
+    - Edge cases: Extreme values, boundary conditions
+    
+    Method: Boundary value analysis + equivalence partitioning
+    """
     
     def setUp(self):
         self.test_params = {
@@ -159,6 +311,113 @@ class TestCreditWithOverpayment(unittest.TestCase):
         year = 25
         if standard_results[year]["monthly_payment"] < params["Acceptable monthly payment"][0]:
             self.assertLess(overpayment_results[year]["total_cost"], standard_results[year]["total_cost"])
+    
+    def test_zero_acceptable_payment(self):
+        """Test with zero acceptable payment"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [0]
+        
+        results = calculate_credit_with_overpayment(params)
+        standard_results = calculate_credit(params)
+        
+        # Should use required payment when acceptable is zero
+        for year, data in results.items():
+            self.assertEqual(data["monthly_payment"], standard_results[year]["monthly_payment"])
+            self.assertEqual(data["investment_balance"], 0)
+    
+    def test_high_investment_rate(self):
+        """Test with high investment rate (>10%)"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [2000]
+        params["Investment interest rate"] = [15.0]  # High investment rate
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # High investment rate should generate significant investment balance
+        long_term = 25
+        if results[long_term]["investment_balance"] > 0:
+            self.assertGreater(results[long_term]["investment_balance"], 50000)
+    
+    def test_investment_rate_vs_credit_rate(self):
+        """Test when investment rate is higher than credit rate"""
+        params = self.test_params.copy()
+        params["Credit rate"] = [3.0]  # Low credit rate
+        params["Investment interest rate"] = [8.0]  # High investment rate
+        params["Acceptable monthly payment"] = [1500]
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # When investment rate > credit rate, total cost should be significantly reduced
+        long_term = 20
+        if results[long_term]["investment_balance"] > 0:
+            self.assertLess(results[long_term]["total_cost"], 0)  # Could be negative (profit)
+    
+    def test_zero_investment_rate(self):
+        """Test with zero investment rate"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [1500]
+        params["Investment interest rate"] = [0.0]
+        
+        results = calculate_credit_with_overpayment(params)
+        standard_results = calculate_credit(params)
+        
+        # With zero investment rate, should still reduce cost due to early payoff
+        long_term = 25
+        if standard_results[long_term]["monthly_payment"] < params["Acceptable monthly payment"][0]:
+            self.assertLessEqual(results[long_term]["total_cost"], standard_results[long_term]["total_cost"])
+    
+    def test_extreme_overpayment(self):
+        """Test with very high acceptable payment"""
+        params = self.test_params.copy()
+        params["Acceptable monthly payment"] = [10000]  # Very high payment
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # Should pay off quickly and generate large investment balance
+        long_term = 30
+        self.assertEqual(results[long_term]["monthly_payment"], 10000)
+        self.assertGreater(results[long_term]["investment_balance"], 100000)
+    
+    def test_negative_inflation_with_overpayment(self):
+        """Test overpayment with deflation"""
+        params = self.test_params.copy()
+        params["Expected inflation"] = [-2.0]  # Deflation
+        params["Acceptable monthly payment"] = [1500]
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # With deflation, adjusted cost should be higher than nominal
+        long_term = 20
+        if results[long_term]["total_cost"] > 0:
+            self.assertGreater(results[long_term]["total_cost_adjusted"], results[long_term]["total_cost"])
+    
+    def test_equal_acceptable_payment(self):
+        """Test when acceptable payment exactly equals required payment"""
+        params = self.test_params.copy()
+        standard_results = calculate_credit(params)
+        
+        # Set acceptable payment equal to 15-year required payment
+        params["Acceptable monthly payment"] = [standard_results[15]["monthly_payment"]]
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # For 15-year term, should match standard calculation
+        self.assertEqual(results[15]["monthly_payment"], standard_results[15]["monthly_payment"])
+        self.assertEqual(results[15]["total_cost"], standard_results[15]["total_cost"])
+        self.assertEqual(results[15]["investment_balance"], 0)
+    
+    def test_small_credit_amount_overpayment(self):
+        """Test overpayment with small credit amount"""
+        params = self.test_params.copy()
+        params["Credit amount"] = 1000  # Small amount
+        params["Acceptable monthly payment"] = [500]  # High relative to amount
+        
+        results = calculate_credit_with_overpayment(params)
+        
+        # Should pay off very quickly
+        short_term = 5
+        self.assertEqual(results[short_term]["monthly_payment"], 500)
+        self.assertGreater(results[short_term]["investment_balance"], 0)
 
 
 if __name__ == "__main__":
