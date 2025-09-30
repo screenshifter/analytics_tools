@@ -5,11 +5,14 @@ from python.runfiles import runfiles
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 from typing import Any
-from finance.optimal_credit_length_estimation.detail.input import parse_input, validate_input
-from finance.optimal_credit_length_estimation.detail.types import CreditCalculationResult
-from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
-from finance.optimal_credit_length_estimation.detail.visualization import plot_credit_results
-from finance.optimal_credit_length_estimation.credit.credit_with_investment import calculate_credit_with_investment
+from detail.input import parse_input, validate_input
+from detail.types import CreditCalculationResult
+from credit.simple_credit import (
+    calculate_credit,
+    calculate_credit_with_overpayment,
+    calculate_credit_with_investment,
+)
+from detail.visualization import plot_credit_results
 
 
 def print_credit_parameters(credit_parameters: dict[str, Any]) -> None:
