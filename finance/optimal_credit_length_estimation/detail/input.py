@@ -1,13 +1,13 @@
 import json
 import os.path
 import sys
-from typing import Dict, Any
+from typing import Any
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 from common.utils import log_error
 
 
-def parse_input(filepath: str) -> Dict[str, Any]:
+def parse_input(filepath: str) -> dict[str, Any]:
     """Parses input file
 
     Returns:
@@ -28,7 +28,7 @@ def parse_input(filepath: str) -> Dict[str, Any]:
         return input_conditions
 
 
-def validate_input(sample: Dict[str, Any]) -> bool:
+def validate_input(sample: dict[str, Any]) -> bool:
     """Validates input data
 
     Data is checked to have all required parameters and some values for them

@@ -4,19 +4,22 @@ from python.runfiles import runfiles
 # Use paths relative to the project root to allow to use the script both directly and with Bazel
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from typing import Dict, Any
+from typing import Any
 from finance.optimal_credit_length_estimation.detail.input import parse_input, validate_input
+from finance.optimal_credit_length_estimation.detail.types import CreditCalculationResult
 from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
 from finance.optimal_credit_length_estimation.detail.visualization import plot_credit_results
 from finance.optimal_credit_length_estimation.credit.credit_with_investment import calculate_credit_with_investment
 
 
-def print_credit_parameters(credit_parameters: Dict[str, Any]) -> None:
+def print_credit_parameters(credit_parameters: dict[str, Any]) -> None:
     for key in credit_parameters:
         print(f"{key}: {credit_parameters.get(key)}")
 
 
-def print_credit_results(results: Dict[int, Dict[str, float]], calculation_name: str) -> None:
+def print_credit_results(
+    results: dict[int, CreditCalculationResult], calculation_name: str
+) -> None:
     """Print credit calculation results in a standardized format"""
     print(f"\n{calculation_name}:")
     for years, data in results.items():
@@ -56,7 +59,7 @@ def main() -> None:
     print_credit_results(investment_results, "Credit with investment calculations")
     print_credit_results(overpayment_results, "Credit with overpayment calculations")
 
-    all_results = [
+    all_results: list[dict[str, Any]] = [
         {"results": credit_results, "label": "Credit Only"},
         {"results": investment_results, "label": "With Investment"},
         {"results": overpayment_results, "label": "With Overpayment"},
