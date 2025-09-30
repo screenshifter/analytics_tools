@@ -1,12 +1,13 @@
 import json
 import os.path
 import sys
+from typing import Dict, Any
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 from common.utils import log_error
 
 
-def parse_input(filepath):
+def parse_input(filepath: str) -> Dict[str, Any]:
     """Parses input file
 
     Returns:
@@ -16,18 +17,18 @@ def parse_input(filepath):
     filepath = os.path.abspath(os.path.normpath(filepath))
     if not os.path.exists(filepath):
         log_error(f"File not found: {filepath}")
-        return False
+        return dict()
 
     with open(filepath) as input_file:
         try:
             input_conditions = json.load(input_file)
         except ValueError as failure:
             log_error(f"An error occured during input file decoding: {failure.args}")
-            return False
+            return dict()
         return input_conditions
 
 
-def validate_input(sample):
+def validate_input(sample: Dict[str, Any]) -> bool:
     """Validates input data
 
     Data is checked to have all required parameters and some values for them
@@ -63,7 +64,7 @@ def validate_input(sample):
     return True
 
 
-def write_test_input(filepath):
+def write_test_input(filepath: str) -> bool:
     """Generates test input data and writes it to the input file"""
     data_to_write = {
         "Credit amount": 600000,

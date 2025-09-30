@@ -1,4 +1,7 @@
-def _calculate_monthly_payment(amount, rate, months):
+from typing import Dict, Any
+
+
+def _calculate_monthly_payment(amount: float, rate: float, months: int) -> float:
     """Calculate monthly payment for given loan parameters"""
     if rate == 0:
         return amount / months
@@ -9,7 +12,7 @@ def _calculate_monthly_payment(amount, rate, months):
     return amount * (numerator / denominator)
 
 
-def calculate_credit(credit_parameters):
+def calculate_credit(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
     """Calculates credit payments for different loan terms. Additionally calculates total credit cost adjusted to inflation in "today's" money
 
     Args:
@@ -49,7 +52,7 @@ def calculate_credit(credit_parameters):
     return results
 
 
-def calculate_credit_with_overpayment(credit_parameters):
+def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
     """Calculates credit with overpayment when monthly payment is below acceptable threshold
     
     Args:
@@ -104,15 +107,32 @@ def calculate_credit_with_overpayment(credit_parameters):
                 total_paid += actual_payment
                 actual_months += 1
             
-            actual_years = actual_months / 12
-            inflation_factor = (1 + inflation_rate) ** actual_years
-            total_cost_adjusted = total_paid / inflation_factor
+            # Calculate investment balance for remaining months after payoff
+            remaining_months = months - actual_months
+            if remaining_months > 0:
+                from detail.investment import calculate_simple_investment
+                investment_rate = credit_parameters["Investment interest rate"][0]
+                investment_balance = calculate_simple_investment(
+                    0,
+                    acceptable_payment,
+                    investment_rate,
+                    remaining_months / 12
+                )
+            else:
+                investment_balance = 0
+            
+            # Calculate total cost with investment balance subtracted
+            total_cost_with_investment = total_paid - investment_balance
+            
+            # Calculate inflation-adjusted total cost using the new total cost and full loan term
+            inflation_factor = (1 + inflation_rate) ** years
+            total_cost_adjusted = total_cost_with_investment / inflation_factor
             
             results[years] = {
                 "monthly_payment": round(actual_payment, 2),
-                "total_cost": round(total_paid, 2),
+                "total_cost": round(total_cost_with_investment, 2),
                 "total_cost_adjusted": round(total_cost_adjusted, 2),
-                "investment_balance": 0,
+                "investment_balance": round(investment_balance, 2),
                 "actual_months": actual_months
             }
     

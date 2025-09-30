@@ -1,7 +1,8 @@
+from typing import Dict, Any
 from detail.investment import calculate_simple_investment
 
 
-def calculate_credit_with_investment(credit_results, credit_parameters):
+def calculate_credit_with_investment(credit_results: Dict[int, Dict[str, float]], credit_parameters: Dict[str, Any]) -> Dict[int, Dict[str, float]]:
     """Calculate credit results with investment of payment difference
     
     Args:

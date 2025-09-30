@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
+from typing import List, Dict, Any
 
 
-def plot_credit_results(results_list, credit_parameters):
+def plot_credit_results(results_list: List[Dict[str, Any]], credit_parameters: Dict[str, Any]) -> None:
     """Creates individual plots for each credit result metric over years"""
     if not results_list:
         return
@@ -10,7 +11,7 @@ def plot_credit_results(results_list, credit_parameters):
     colors = ["b", "orange", "green", "purple", "cyan"]
     markers = ["o", "s", "^", "d", "v"]
     
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(20, 5))
     
     # Plot monthly payments
     for i, result_set in enumerate(results_list):
@@ -53,6 +54,17 @@ def plot_credit_results(results_list, credit_parameters):
     ax3.set_xlabel("Years")
     ax3.set_ylabel("Inflation-Adjusted Cost")
     ax3.grid(True)
+    
+    # Plot investment balances
+    for i, result_set in enumerate(results_list):
+        investment_balances = [data["investment_balance"] for data in result_set["results"].values()]
+        ax4.plot(years, investment_balances, color=colors[i % len(colors)], marker=markers[i % len(markers)], label=result_set["label"])
+    
+    ax4.legend()
+    ax4.set_title("Investment Balance vs Years")
+    ax4.set_xlabel("Years")
+    ax4.set_ylabel("Investment Balance")
+    ax4.grid(True)
     
     plt.tight_layout()
     plt.show()

@@ -1,13 +1,13 @@
 def calculate_simple_investment(
-    initial_investment, monthly_income, interest_rate, years
-):
+    initial_investment: float, monthly_income: float, interest_rate: float, years: float
+) -> float:
     """Calculate total balance for investment with regular monthly contributions
 
     Args:
         initial_investment (float): Initial lump sum investment
         monthly_income (float): Monthly contribution amount
         interest_rate (float): Annual interest rate as percentage (e.g., 5.0 for 5%)
-        years (int): Investment period in years
+        years (float): Investment period in years
 
     Returns:
         float: Total balance after the investment period
