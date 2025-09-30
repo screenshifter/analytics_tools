@@ -479,121 +479,107 @@ class TestCreditWithInvestment(unittest.TestCase):
             "Credit amount": 100000,
             "Credit rate": [5.0],
             "Expected inflation": [3.0],
+            "Acceptable monthly payment": [1000],
+            "Investment interest rate": [7.0],
         }
-        self.credit_results = calculate_credit(self.credit_parameters)
-        self.acceptable_payment = 1000
-        self.investment_rate = 7.0
-        self.inflation_rate = 3.0
 
     def test_monthly_payment_never_below_credit(self):
         """Test that monthly payment is never below required credit payment"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         for years, data in results.items():
             self.assertGreaterEqual(
-                data["monthly_payment"], self.credit_results[years]["monthly_payment"]
+                data["monthly_payment"], credit_results[years]["monthly_payment"]
             )
 
     def test_low_acceptable_payment(self):
         """Test that when acceptable payment is too low, credit payment is used"""
-        test_params = {
-            "Acceptable monthly payment": [200],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Acceptable monthly payment"] = [200]
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # Monthly payment should equal credit payment (no investment possible)
         for years, data in results.items():
             self.assertEqual(
-                data["monthly_payment"], self.credit_results[years]["monthly_payment"]
+                data["monthly_payment"], credit_results[years]["monthly_payment"]
             )
-            self.assertEqual(
-                data["total_cost"], self.credit_results[years]["total_cost"]
-            )
+            self.assertEqual(data["total_cost"], credit_results[years]["total_cost"])
 
     def test_total_cost_reduction(self):
         """Test that total cost is reduced when investment is possible"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # Find a case where investment is possible
         for years in [10, 15, 20]:
-            if self.credit_results[years]["monthly_payment"] < self.acceptable_payment:
+            if (
+                credit_results[years]["monthly_payment"]
+                < test_params["Acceptable monthly payment"][0]
+            ):
                 self.assertLess(
                     results[years]["total_cost"],
-                    self.credit_results[years]["total_cost"],
+                    credit_results[years]["total_cost"],
                 )
 
     def test_zero_investment_rate(self):
         """Test with zero investment rate"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [0.0],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Investment interest rate"] = [0.0]
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         for years, data in results.items():
             expected_payment = max(
-                self.acceptable_payment, self.credit_results[years]["monthly_payment"]
+                test_params["Acceptable monthly payment"][0],
+                credit_results[years]["monthly_payment"],
             )
             self.assertEqual(data["monthly_payment"], expected_payment)
 
     def test_exact_payment_match(self):
         """Test when acceptable payment exactly matches credit payment"""
-        exact_payment = self.credit_results[10]["monthly_payment"]
-        test_params = {
-            "Acceptable monthly payment": [exact_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        credit_results = calculate_credit(self.credit_parameters)
+        exact_payment = credit_results[10]["monthly_payment"]
+        test_params = self.credit_parameters.copy()
+        test_params["Acceptable monthly payment"] = [exact_payment]
+        results = calculate_credit_with_investment(test_params)
 
         # Monthly payment and total cost should be unchanged for this term
         self.assertEqual(results[10]["monthly_payment"], exact_payment)
-        self.assertEqual(
-            results[10]["total_cost"], self.credit_results[10]["total_cost"]
-        )
+        self.assertEqual(results[10]["total_cost"], credit_results[10]["total_cost"])
         self.assertEqual(
             results[10]["total_cost_adjusted"],
-            self.credit_results[10]["total_cost_adjusted"],
+            credit_results[10]["total_cost_adjusted"],
         )
 
     def test_inflation_adjustment_calculation(self):
         """Test that inflation adjustment is calculated correctly"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # Test specific case where we can verify calculation
         years = 10
-        if self.credit_results[years]["monthly_payment"] < self.acceptable_payment:
+        acceptable_payment = test_params["Acceptable monthly payment"][0]
+        investment_rate = test_params["Investment interest rate"][0]
+        inflation_rate = test_params["Expected inflation"][0]
+        if credit_results[years]["monthly_payment"] < acceptable_payment:
             # Calculate expected values manually
             monthly_investment = (
-                self.acceptable_payment - self.credit_results[years]["monthly_payment"]
+                acceptable_payment - credit_results[years]["monthly_payment"]
             )
             from detail.investment import calculate_simple_investment
 
             investment_balance = calculate_simple_investment(
-                0, monthly_investment, self.investment_rate, years
+                0, monthly_investment, investment_rate, years
             )
             expected_total_cost = (
-                self.credit_results[years]["total_cost"] - investment_balance
+                credit_results[years]["total_cost"] - investment_balance
             )
-            inflation_factor = (1 + self.inflation_rate / 100) ** years
+            inflation_factor = (1 + inflation_rate / 100) ** years
             expected_adjusted_cost = round(expected_total_cost / inflation_factor, 2)
 
             self.assertEqual(
@@ -602,12 +588,9 @@ class TestCreditWithInvestment(unittest.TestCase):
 
     def test_inflation_adjustment_with_zero_inflation(self):
         """Test inflation adjustment with zero inflation rate"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [0.0],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Expected inflation"] = [0.0]
+        results = calculate_credit_with_investment(test_params)
 
         # With zero inflation, adjusted cost should equal nominal cost
         for years, data in results.items():
@@ -617,12 +600,8 @@ class TestCreditWithInvestment(unittest.TestCase):
 
     def test_inflation_adjustment_reduces_cost(self):
         """Test that inflation adjustment reduces the adjusted cost when cost is positive"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        results = calculate_credit_with_investment(test_params)
 
         # For positive costs, adjusted cost should be less than nominal cost
         # For negative costs (profit), adjusted cost should be greater than nominal cost
@@ -634,55 +613,49 @@ class TestCreditWithInvestment(unittest.TestCase):
 
     def test_medium_investment_rate(self):
         """Test with medium investment rate (5-10%)"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [8.0],  # Medium investment rate
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Investment interest rate"] = [8.0]  # Medium investment rate
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # Medium investment rate should provide reasonable returns
+        acceptable_payment = test_params["Acceptable monthly payment"][0]
         for years, data in results.items():
-            if self.credit_results[years]["monthly_payment"] < self.acceptable_payment:
+            if credit_results[years]["monthly_payment"] < acceptable_payment:
                 self.assertGreater(data["investment_balance"], 0)
 
     def test_high_investment_rate(self):
         """Test with high investment rate (>10%)"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [15.0],  # High investment rate
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Investment interest rate"] = [15.0]  # High investment rate
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # High investment rate should generate significant returns
         long_term = 20
-        if self.credit_results[long_term]["monthly_payment"] < self.acceptable_payment:
+        acceptable_payment = test_params["Acceptable monthly payment"][0]
+        if credit_results[long_term]["monthly_payment"] < acceptable_payment:
             self.assertGreater(results[long_term]["investment_balance"], 50000)
 
     def test_investment_rate_equals_credit_rate(self):
         """Test when investment rate equals credit rate"""
-        credit_rate = 5.0
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [credit_rate],  # Same as credit rate
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Investment interest rate"] = [5.0]  # Same as credit rate
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # When rates are equal, investment should still provide some benefit
+        acceptable_payment = test_params["Acceptable monthly payment"][0]
         for years, data in results.items():
-            if self.credit_results[years]["monthly_payment"] < self.acceptable_payment:
+            if credit_results[years]["monthly_payment"] < acceptable_payment:
                 self.assertGreaterEqual(data["investment_balance"], 0)
 
     def test_large_payment_difference(self):
         """Test with very large acceptable payment creating big investment difference"""
-        test_params = {
-            "Acceptable monthly payment": [3000],  # Much higher than required
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Acceptable monthly payment"] = [3000]  # Much higher than required
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # Large payment difference should create substantial investment balance
         long_term = 25
@@ -690,17 +663,14 @@ class TestCreditWithInvestment(unittest.TestCase):
         # Total cost should be significantly reduced or negative
         self.assertLess(
             results[long_term]["total_cost"],
-            self.credit_results[long_term]["total_cost"] * 0.5,
+            credit_results[long_term]["total_cost"] * 0.5,
         )
 
     def test_negative_inflation_with_investment(self):
         """Test investment calculation with deflation"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [-2.0],  # Deflation
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Expected inflation"] = [-2.0]  # Deflation
+        results = calculate_credit_with_investment(test_params)
 
         # With deflation, adjusted cost should be higher than nominal
         for years, data in results.items():
@@ -709,12 +679,9 @@ class TestCreditWithInvestment(unittest.TestCase):
 
     def test_high_inflation_with_investment(self):
         """Test investment calculation with high inflation (>10%)"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [12.0],  # High inflation
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Expected inflation"] = [12.0]  # High inflation
+        results = calculate_credit_with_investment(test_params)
 
         # With high inflation, adjusted cost should be much lower
         long_term = 20
@@ -726,49 +693,35 @@ class TestCreditWithInvestment(unittest.TestCase):
 
     def test_zero_credit_results(self):
         """Test with zero credit amounts in input results"""
-        zero_credit_results = {
-            years: {
-                "monthly_payment": 0,
-                "total_cost": 0,
-                "total_cost_adjusted": 0,
-                "investment_balance": 0,
-            }
-            for years in range(3, 31)
-        }
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(zero_credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Credit amount"] = 0
+        results = calculate_credit_with_investment(test_params)
 
         # With zero credit, should use acceptable payment for investment
+        acceptable_payment = test_params["Acceptable monthly payment"][0]
         for years, data in results.items():
-            self.assertEqual(data["monthly_payment"], self.acceptable_payment)
+            self.assertEqual(data["monthly_payment"], acceptable_payment)
             self.assertGreater(data["investment_balance"], 0)
 
     def test_investment_vs_credit_rate_comparison(self):
         """Test comparison when investment rate is much higher than credit rate"""
-        test_params = {
-            "Acceptable monthly payment": [1500],
-            "Investment interest rate": [12.0],  # Much higher than typical credit rate
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        test_params["Acceptable monthly payment"] = [1500]
+        test_params["Investment interest rate"] = [
+            12.0
+        ]  # Much higher than typical credit rate
+        results = calculate_credit_with_investment(test_params)
+        credit_results = calculate_credit(test_params)
 
         # High investment rate should make total cost negative (profit)
         long_term = 25
-        if self.credit_results[long_term]["monthly_payment"] < 1500:
+        if credit_results[long_term]["monthly_payment"] < 1500:
             self.assertLess(results[long_term]["total_cost"], 0)
 
     def test_output_structure_consistency(self):
         """Test that all required output fields are present and properly typed"""
-        test_params = {
-            "Acceptable monthly payment": [self.acceptable_payment],
-            "Investment interest rate": [self.investment_rate],
-            "Expected inflation": [self.inflation_rate],
-        }
-        results = calculate_credit_with_investment(self.credit_results, test_params)
+        test_params = self.credit_parameters.copy()
+        results = calculate_credit_with_investment(test_params)
 
         # Verify all required fields are present and properly typed
         for years, data in results.items():

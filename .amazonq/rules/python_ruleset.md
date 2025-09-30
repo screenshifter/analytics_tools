@@ -1,4 +1,3 @@
 All Python code must use type hints.
-All Python changes must be followed by running all tests in the @workspace for verification.
+All tests must be run after any changes in the @workspace for verification.
 Don't use deprecated Python aliases.
-Format all Python files with Black Formatter after change.
