@@ -20,7 +20,7 @@ def calculate_simple_investment(
         raise ValueError("Interest rate cannot be negative")
     if years <= 0:
         raise ValueError("Years must be positive")
-    
+
     monthly_rate = interest_rate / 100 / 12
     months = years * 12
 
