@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
-from typing import List, Dict, Any
+from typing import Any
+from .types import CreditCalculationResult
 
 
-def plot_credit_results(results_list: List[Dict[str, Any]], credit_parameters: Dict[str, Any]) -> None:
+def plot_credit_results(results_list: list[dict[str, dict[int, CreditCalculationResult]]], credit_parameters: dict[str, Any]) -> None:
     """Creates individual plots for each credit result metric over years"""
     if not results_list:
         return
