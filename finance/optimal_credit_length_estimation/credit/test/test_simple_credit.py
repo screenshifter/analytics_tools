@@ -127,6 +127,7 @@ class TestCreditWithOverpayment(unittest.TestCase):
             self.assertIn("total_cost", data)
             self.assertIn("total_cost_adjusted", data)
             self.assertIn("investment_balance", data)
+            # Investment balance should be 0 when no overpayment is possible
             self.assertEqual(data["investment_balance"], 0)
     
     def test_with_overpayment_scenario(self):
@@ -144,6 +145,8 @@ class TestCreditWithOverpayment(unittest.TestCase):
         # Monthly payment should equal acceptable payment when overpayment occurs
         if standard_results[long_term_year]["monthly_payment"] < params["Acceptable monthly payment"][0]:
             self.assertEqual(results[long_term_year]["monthly_payment"], params["Acceptable monthly payment"][0])
+            # Investment balance should be positive when credit is paid off early
+            self.assertGreater(results[long_term_year]["investment_balance"], 0)
     
     def test_overpayment_reduces_total_cost(self):
         """Test that overpayment reduces total interest paid"""
