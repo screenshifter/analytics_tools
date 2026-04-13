@@ -18,5 +18,3 @@ build:clang_tidy --@bazel_clang_tidy//:clang_tidy_executable=//third_party/clang
 
 build:clang_tidy_pedantic --config=clang_tidy
 build:clang_tidy_pedantic --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_pedantic_config
-
-build:gcc_tools --config=gcc

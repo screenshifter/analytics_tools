@@ -10,9 +10,7 @@ py_binary(
         "//finance/optimal_credit_length_estimation/input:default_input.json",
     ],
     deps = [
-        "//common",
         "//finance/optimal_credit_length_estimation/detail",
         "@rules_python//python/runfiles",
-        "@pypi//matplotlib",
     ],
 )
