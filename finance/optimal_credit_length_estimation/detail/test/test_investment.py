@@ -1,5 +1,5 @@
 import unittest
-from ..investment import calculate_simple_investment
+from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
 
 
 class TestInvestmentCalculation(unittest.TestCase):

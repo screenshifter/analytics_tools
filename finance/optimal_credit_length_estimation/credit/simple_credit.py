@@ -110,7 +110,7 @@ def calculate_credit_with_overpayment(credit_parameters: Dict[str, Any]) -> Dict
             # Calculate investment balance for remaining months after payoff
             remaining_months = months - actual_months
             if remaining_months > 0:
-                from detail.investment import calculate_simple_investment
+                from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
                 investment_rate = credit_parameters["Investment interest rate"][0]
                 investment_balance = calculate_simple_investment(
                     0,
