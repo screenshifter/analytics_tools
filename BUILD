@@ -1,12 +1,3 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
-
-cc_binary(
-    name = "main",
-    srcs = ["main.cc"],
-    deps = ["//src"],
-    visibility = ["//visibility:public"],
-)
-
 filegroup(
     name = "clang_tidy_config",
     srcs = [".clang-tidy"],

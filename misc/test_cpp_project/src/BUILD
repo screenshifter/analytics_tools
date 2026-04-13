@@ -4,5 +4,6 @@ cc_library(
     name = "src",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    visibility = ["//visibility:public"],
+    strip_include_prefix = "/misc/test_cpp_project",
+    visibility = ["//misc/test_cpp_project:__subpackages__"],
 )

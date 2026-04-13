@@ -9,7 +9,7 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     hub_name = "pypi",
     python_version = "3.12",
-    requirements_lock = "//pypi:requirements_lock.txt",
+    requirements_lock = "//third_party/pypi:requirements_lock.txt",
 )
 use_repo(pip, "pypi")
 
@@ -24,7 +24,7 @@ archive_override(
     urls = ["https://github.com/erenon/bazel_clang_tidy/archive/c4d35e0d0b838309358e57a2efed831780f85cd0.tar.gz"],
     strip_prefix = "bazel_clang_tidy-c4d35e0d0b838309358e57a2efed831780f85cd0",
     integrity = "sha256-ltpuk1zMkQRc+SjbxX8iUIonKcUff7P1YXgBew3rmzw=",
-    patches = ["//patches:bazel_clang_tidy_remove_config_dep.patch"],
+    patches = ["//third_party/patches:bazel_clang_tidy_remove_config_dep.patch"],
     patch_strip = 1,
 )
 

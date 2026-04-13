@@ -8,6 +8,6 @@ def find_binary():
         with open(manifest) as f:
             for line in f:
                 key, _, path = line.strip().partition(" ")
-                if key == "_main/main":
+                if key == "_main/misc/test_cpp_project/main":
                     return path
     return sys.argv[1] if len(sys.argv) > 1 else "bazel-bin/main"
