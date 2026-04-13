@@ -172,3 +172,10 @@ cython_debug/
 
 # Visual Studio Code configuration
 .vscode/
+
+# Bazel
+*.bazel.lock
+bazel-analytics_tools
+bazel-bin
+bazel-out
+bazel-testlogs

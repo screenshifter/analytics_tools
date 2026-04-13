@@ -1,0 +1,13 @@
+---
+Checks: "clang-diagnostic-*,clang-analyzer-*,bugprone-*,modernize-*,-modernize-use-trailing-return-type,performance-*,readability-*,cppcoreguidelines-*,misc-*"
+WarningsAsErrors: "*"
+HeaderFilterRegex: "src/.*"
+FormatStyle: file
+CheckOptions:
+  - key: readability-identifier-naming.AggressiveDependentMemberLookup
+    value: true
+ExtraArgs:
+  - "-Wpedantic"
+  - "-Wextra"
+  - "-Wall"
+...

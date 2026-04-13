@@ -1,9 +1,14 @@
 import sys
+import os.path
+from python.runfiles import runfiles
+# Use paths relative to the project root to allow to use the script both directly and with Bazel
+sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
+
 from typing import Dict, Any
-from detail.input import parse_input, validate_input, write_test_input
-from credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
-from detail.visualization import plot_credit_results
-from credit.credit_with_investment import calculate_credit_with_investment
+from finance.optimal_credit_length_estimation.detail.input import parse_input, validate_input, write_test_input
+from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
+from finance.optimal_credit_length_estimation.detail.visualization import plot_credit_results
+from finance.optimal_credit_length_estimation.credit.credit_with_investment import calculate_credit_with_investment
 
 
 def print_credit_parameters(credit_parameters: Dict[str, Any]) -> None:
@@ -25,7 +30,9 @@ def main() -> None:
     filepath = (
         sys.argv[1]
         if len(sys.argv) > 1
-        else (sys.path[0] + "/input/default_input.json")
+        else runfiles.Create().Rlocation(
+            "analytics_tools/finance/optimal_credit_length_estimation/input/default_input.json"
+        )
     )
     print(f"Credit parameters input file path: {filepath}")
 

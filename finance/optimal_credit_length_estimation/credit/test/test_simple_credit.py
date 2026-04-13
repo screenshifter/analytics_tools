@@ -1,6 +1,6 @@
 import unittest
 import math
-from ..simple_credit import calculate_credit, calculate_credit_with_overpayment
+from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit, calculate_credit_with_overpayment
 
 
 class TestSimpleCreditCalculation(unittest.TestCase):

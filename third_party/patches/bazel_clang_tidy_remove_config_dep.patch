@@ -1,0 +1,11 @@
+--- a/clang_tidy/BUILD
++++ b/clang_tidy/BUILD
+@@ -1,8 +1,7 @@
+ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+ 
+ sh_binary(
+     name = "clang_tidy",
+     srcs = ["run_clang_tidy.sh"],
+-    data = ["//:clang_tidy_config"],
+     visibility = ["//visibility:public"],
+ )

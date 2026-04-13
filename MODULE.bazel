@@ -1,0 +1,34 @@
+module(name = "analytics_tools", version = "0.0.1")
+
+bazel_dep(name = "rules_python", version = "1.9.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.12", is_default = True)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12",
+    requirements_lock = "//third_party/pypi:requirements_lock.txt",
+)
+use_repo(pip, "pypi")
+
+bazel_dep(name = "gcc_toolchain", version = "0.9.0")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_shell", version = "0.7.1")
+bazel_dep(name = "bazel_clang_tidy")
+
+archive_override(
+    module_name = "bazel_clang_tidy",
+    urls = ["https://github.com/erenon/bazel_clang_tidy/archive/c4d35e0d0b838309358e57a2efed831780f85cd0.tar.gz"],
+    strip_prefix = "bazel_clang_tidy-c4d35e0d0b838309358e57a2efed831780f85cd0",
+    integrity = "sha256-ltpuk1zMkQRc+SjbxX8iUIonKcUff7P1YXgBew3rmzw=",
+    patches = ["//third_party/patches:bazel_clang_tidy_remove_config_dep.patch"],
+    patch_strip = 1,
+)
+
+gcc_toolchains = use_extension("@gcc_toolchain//toolchain:module_extensions.bzl", "gcc_toolchains")
+gcc_toolchains.toolchain(name = "gcc_toolchain_x86_64", target_arch = "x86_64")
+use_repo(gcc_toolchains, "gcc_toolchain_x86_64")
+register_toolchains("@gcc_toolchain_x86_64//:cc_toolchain")

@@ -1,6 +1,7 @@
 import unittest
-from credit.credit_with_investment import calculate_credit_with_investment
-from credit.simple_credit import calculate_credit
+from finance.optimal_credit_length_estimation.credit.credit_with_investment import calculate_credit_with_investment
+from finance.optimal_credit_length_estimation.credit.simple_credit import calculate_credit
+from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
 
 
 class TestCreditWithInvestment(unittest.TestCase):
