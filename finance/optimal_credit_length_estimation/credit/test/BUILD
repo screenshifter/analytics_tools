@@ -7,11 +7,3 @@ py_test(
     imports = ["../../../.."],
     deps = ["//finance/optimal_credit_length_estimation/credit"],
 )
-
-py_test(
-    name = "test_credit_with_investment",
-    srcs = ["test_credit_with_investment.py"],
-    main = "test_credit_with_investment.py",
-    imports = ["../../../.."],
-    deps = ["//finance/optimal_credit_length_estimation/credit"],
-)

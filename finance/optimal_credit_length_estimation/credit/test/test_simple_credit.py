@@ -1,6 +1,6 @@
 import unittest
 import math
-from ..simple_credit import (
+from finance.optimal_credit_length_estimation.credit.simple_credit import (
     calculate_credit,
     calculate_credit_with_overpayment,
     calculate_credit_with_investment,
@@ -571,7 +571,7 @@ class TestCreditWithInvestment(unittest.TestCase):
             monthly_investment = (
                 acceptable_payment - credit_results[years]["monthly_payment"]
             )
-            from detail.investment import calculate_simple_investment
+            from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
 
             investment_balance = calculate_simple_investment(
                 0, monthly_investment, investment_rate, years

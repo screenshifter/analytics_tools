@@ -1,24 +1,38 @@
 import matplotlib.pyplot as plt
 from typing import Any
-from .types import CreditCalculationResult
+from finance.optimal_credit_length_estimation.detail.types import CreditCalculationResult
 
 
-def plot_credit_results(results_list: list[dict[str, dict[int, CreditCalculationResult]]], credit_parameters: dict[str, Any]) -> None:
+def plot_credit_results(
+    results_list: list[dict[str, dict[int, CreditCalculationResult]]],
+    credit_parameters: dict[str, Any],
+) -> None:
     """Creates individual plots for each credit result metric over years"""
-    if not results_list:
+    from common.utils import log_error
+
+    if not results_list or "results" not in results_list[0]:
+        log_error("No results to plot")
         return
-    
+
     years = list(results_list[0]["results"].keys())
     colors = ["b", "orange", "green", "purple", "cyan"]
     markers = ["o", "s", "^", "d", "v"]
-    
+
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(20, 5))
-    
+
     # Plot monthly payments
     for i, result_set in enumerate(results_list):
-        monthly_payments = [data["monthly_payment"] for data in result_set["results"].values()]
-        ax1.plot(years, monthly_payments, color=colors[i % len(colors)], marker=markers[i % len(markers)], label=result_set["label"])
-    
+        monthly_payments = [
+            data["monthly_payment"] for data in result_set["results"].values()
+        ]
+        ax1.plot(
+            years,
+            monthly_payments,
+            color=colors[i % len(colors)],
+            marker=markers[i % len(markers)],
+            label=result_set["label"],
+        )
+
     # Add acceptable payment line
     if "Acceptable monthly payment" in credit_parameters:
         ax1.axhline(
@@ -27,45 +41,67 @@ def plot_credit_results(results_list: list[dict[str, dict[int, CreditCalculation
             linestyle="--",
             label="Acceptable Payment",
         )
-    
+
     ax1.legend()
     ax1.set_title("Monthly Payment vs Years")
     ax1.set_xlabel("Years")
     ax1.set_ylabel("Monthly Payment")
     ax1.grid(True)
-    
+
     # Plot total costs
     for i, result_set in enumerate(results_list):
         total_costs = [data["total_cost"] for data in result_set["results"].values()]
-        ax2.plot(years, total_costs, color=colors[i % len(colors)], marker=markers[i % len(markers)], label=result_set["label"])
-    
+        ax2.plot(
+            years,
+            total_costs,
+            color=colors[i % len(colors)],
+            marker=markers[i % len(markers)],
+            label=result_set["label"],
+        )
+
     ax2.legend()
     ax2.set_title("Total Cost vs Years")
     ax2.set_xlabel("Years")
     ax2.set_ylabel("Total Cost")
     ax2.grid(True)
-    
+
     # Plot inflation-adjusted costs
     for i, result_set in enumerate(results_list):
-        total_costs_adjusted = [data["total_cost_adjusted"] for data in result_set["results"].values()]
-        ax3.plot(years, total_costs_adjusted, color=colors[i % len(colors)], marker=markers[i % len(markers)], label=result_set["label"])
-    
+        total_costs_adjusted = [
+            data["total_cost_adjusted"] for data in result_set["results"].values()
+        ]
+        ax3.plot(
+            years,
+            total_costs_adjusted,
+            color=colors[i % len(colors)],
+            marker=markers[i % len(markers)],
+            label=result_set["label"],
+        )
+
     ax3.legend()
     ax3.set_title("Inflation-Adjusted Cost vs Years")
     ax3.set_xlabel("Years")
     ax3.set_ylabel("Inflation-Adjusted Cost")
     ax3.grid(True)
-    
+
     # Plot investment balances
     for i, result_set in enumerate(results_list):
-        investment_balances = [data["investment_balance"] for data in result_set["results"].values()]
-        ax4.plot(years, investment_balances, color=colors[i % len(colors)], marker=markers[i % len(markers)], label=result_set["label"])
-    
+        investment_balances = [
+            data["investment_balance"] for data in result_set["results"].values()
+        ]
+        ax4.plot(
+            years,
+            investment_balances,
+            color=colors[i % len(colors)],
+            marker=markers[i % len(markers)],
+            label=result_set["label"],
+        )
+
     ax4.legend()
     ax4.set_title("Investment Balance vs Years")
     ax4.set_xlabel("Years")
     ax4.set_ylabel("Investment Balance")
     ax4.grid(True)
-    
+
     plt.tight_layout()
     plt.show()

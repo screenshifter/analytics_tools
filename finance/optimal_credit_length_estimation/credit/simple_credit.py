@@ -1,5 +1,5 @@
 from typing import Any
-from detail.types import CreditCalculationResult
+from finance.optimal_credit_length_estimation.detail.types import CreditCalculationResult
 
 
 def _calculate_monthly_payment(amount: float, rate: float, months: int) -> float:
@@ -50,7 +50,7 @@ def _calculate_investment_balance(
     if remaining_months <= 0:
         return 0
 
-    from detail.investment import calculate_simple_investment
+    from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
 
     return calculate_simple_investment(
         0, monthly_payment, investment_rate, remaining_months / 12
@@ -69,6 +69,18 @@ def calculate_credit(
         dict: Results for each year (3-30) with monthly payment and total cost
     """
     amount = credit_parameters["Credit amount"]
+
+    if (
+        not credit_parameters.get("Credit rate")
+        or len(credit_parameters["Credit rate"]) == 0
+    ):
+        raise ValueError("Credit rate must be provided as non-empty list")
+    if (
+        not credit_parameters.get("Expected inflation")
+        or len(credit_parameters["Expected inflation"]) == 0
+    ):
+        raise ValueError("Expected inflation must be provided as non-empty list")
+
     rate = (
         credit_parameters["Credit rate"][0] / 100 / 12
     )  # Convert to monthly decimal rate
@@ -185,7 +197,7 @@ def calculate_credit_with_investment(
             0, acceptable_monthly_payment - data["monthly_payment"]
         )
 
-        from detail.investment import calculate_simple_investment
+        from finance.optimal_credit_length_estimation.detail.investment import calculate_simple_investment
 
         investment_balance = calculate_simple_investment(
             0, monthly_investment, investment_rate, years
