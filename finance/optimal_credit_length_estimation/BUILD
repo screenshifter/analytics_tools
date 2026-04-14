@@ -12,6 +12,8 @@ py_binary(
     deps = [
         "//finance/optimal_credit_length_estimation/detail",
         "//finance/optimal_credit_length_estimation/credit",
+        "//finance/optimal_credit_length_estimation/input",
+        "//finance/optimal_credit_length_estimation/user_interface",
         "@rules_python//python/runfiles",
     ],
 )

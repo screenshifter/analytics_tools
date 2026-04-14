@@ -11,6 +11,11 @@ build:gcc_dbg --copt=-O0
 build:gcc_dbg --copt=-g3
 build:gcc_dbg --copt=-UNDEBUG
 
+coverage --combined_report=lcov
+coverage --nocache_test_results
+# Exclude finance/optimal_credit_length_estimation/input and /user_interface folders from coverage
+coverage --instrumentation_filter="^//(?!finance/optimal_credit_length_estimation/(input|user_interface))"
+
 build:clang_tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
 build:clang_tidy --output_groups=report
 build:clang_tidy --@bazel_clang_tidy//:clang_tidy_config=//:clang_tidy_config
