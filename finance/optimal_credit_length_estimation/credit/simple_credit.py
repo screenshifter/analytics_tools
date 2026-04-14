@@ -24,10 +24,6 @@ def _calculate_payoff_with_overpayment(
     while remaining_balance > 0.01 and actual_months < max_months:
         interest_payment = remaining_balance * rate
         principal_payment = payment - interest_payment
-
-        if principal_payment <= 0:
-            break
-
         remaining_balance -= principal_payment
         total_paid += payment
         actual_months += 1

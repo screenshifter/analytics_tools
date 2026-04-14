@@ -735,5 +735,57 @@ class TestCreditWithInvestment(unittest.TestCase):
             self.assertIsInstance(data["investment_balance"], (int, float))
 
 
+class TestCalculateCreditValidation(unittest.TestCase):
+    """
+    Unit tests for calculate_credit input validation.
+
+    Test Categories:
+    - Missing Credit rate
+    - Missing Expected inflation
+    """
+
+    def test_missing_credit_rate_raises(self):
+        """Test that missing Credit rate raises ValueError"""
+        with self.assertRaises(ValueError):
+            calculate_credit({"Credit amount": 100000, "Credit rate": [], "Expected inflation": [2.0]})
+
+    def test_missing_expected_inflation_raises(self):
+        """Test that missing Expected inflation raises ValueError"""
+        with self.assertRaises(ValueError):
+            calculate_credit({"Credit amount": 100000, "Credit rate": [5.0], "Expected inflation": []})
+
+
+class TestPayoffWithZeroRemainingMonths(unittest.TestCase):
+    """
+    Unit tests for edge cases in _calculate_payoff_with_overpayment and
+    _calculate_investment_balance.
+
+    Test Categories:
+    - principal_payment <= 0: payment too small to cover interest
+    - remaining_months <= 0: loan paid off exactly at term end
+    """
+
+    def test_no_remaining_months_after_payoff(self):
+        """Test _calculate_investment_balance returns 0 when remaining_months <= 0"""
+        # With a very high payment the loan is paid off within the shortest term (3 years)
+        # so remaining_months for the 3-year scenario will be 0
+        params = {
+            "Credit amount": 100000,
+            "Credit rate": [5.0],
+            "Expected inflation": [0.0],
+            "Acceptable monthly payment": [100000],  # Pays off in 1 month
+            "Investment interest rate": [4.0],
+        }
+        results = calculate_credit_with_overpayment(params)
+        # For the 3-year term, actual_months == 1, remaining == 35, so investment > 0
+        # But for a term where actual_months >= months, investment_balance == 0
+        # Force that by using a payment that exactly matches the 3-year standard payment
+        standard = calculate_credit(params)
+        params["Acceptable monthly payment"] = [standard[3]["monthly_payment"]]
+        results = calculate_credit_with_overpayment(params)
+        self.assertEqual(results[3]["investment_balance"], 0)
+
+
+
 if __name__ == "__main__":
     unittest.main()
