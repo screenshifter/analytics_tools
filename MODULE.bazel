@@ -3,7 +3,7 @@ module(name = "analytics_tools", version = "0.0.1")
 bazel_dep(name = "rules_python", version = "1.9.0")
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(python_version = "3.12", is_default = True)
+python.toolchain(python_version = "3.12", is_default = True, configure_coverage_tool = True)
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
@@ -17,6 +17,7 @@ bazel_dep(name = "gcc_toolchain", version = "0.9.0")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_shell", version = "0.7.1")
+bazel_dep(name = "lcov", version = "2.3.2")
 bazel_dep(name = "bazel_clang_tidy")
 
 archive_override(

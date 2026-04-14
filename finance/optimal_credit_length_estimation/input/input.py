@@ -1,13 +1,13 @@
 import json
 import os.path
 import sys
-from typing import Dict, Any
+from typing import Any
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 from common.utils import log_error
 
 
-def parse_input(filepath: str) -> Dict[str, Any]:
+def parse_input(filepath: str) -> dict[str, Any]:
     """Parses input file
 
     Returns:
@@ -28,7 +28,7 @@ def parse_input(filepath: str) -> Dict[str, Any]:
         return input_conditions
 
 
-def validate_input(sample: Dict[str, Any]) -> bool:
+def validate_input(sample: dict[str, Any]) -> bool:
     """Validates input data
 
     Data is checked to have all required parameters and some values for them
@@ -61,25 +61,4 @@ def validate_input(sample: Dict[str, Any]) -> bool:
             log_error(f"{key} is empty, please add some values under the '{key}' key")
             return False
 
-    return True
-
-
-def write_test_input(filepath: str) -> bool:
-    """Generates test input data and writes it to the input file"""
-    data_to_write = {
-        "Credit amount": 600000,
-        "Credit rate": [8.0],
-        "Expected inflation": [3.0],
-        "Acceptable monthly payment": [6000],
-        "Investment interest rate": [5.0],
-    }
-    try:
-        with open(
-            filepath,
-            mode="w",
-        ) as input_file:
-            json.dump(obj=data_to_write, fp=input_file)
-    except (IOError, OSError) as e:
-        log_error(f"Failed to write test input file: {e}")
-        return False
     return True
