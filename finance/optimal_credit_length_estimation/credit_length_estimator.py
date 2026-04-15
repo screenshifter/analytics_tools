@@ -1,3 +1,4 @@
+import matplotlib.figure
 import sys
 import os.path
 from python.runfiles import runfiles
@@ -30,6 +31,22 @@ def print_credit_results(
         print(
             f"{years} years: Monthly payment: {data['monthly_payment']}, Total cost: {data['total_cost']}, Inflation-adjusted cost: {data['total_cost_adjusted']}, Investment balance: {investment_balance}"
         )
+
+
+def get_credit_figure() -> matplotlib.figure.Figure:
+    filepath = runfiles.Create().Rlocation(
+        "analytics_tools/finance/optimal_credit_length_estimation/input/default_input.json"
+    )
+    credit_parameters = parse_input(filepath)
+    if not credit_parameters or not validate_input(credit_parameters):
+        raise RuntimeError("Failed to load or validate credit input")
+
+    all_results: list[dict[str, Any]] = [
+        {"results": calculate_credit(credit_parameters), "label": "Credit Only"},
+        {"results": calculate_credit_with_investment(credit_parameters), "label": "With Investment"},
+        {"results": calculate_credit_with_overpayment(credit_parameters), "label": "With Overpayment"},
+    ]
+    return plot_credit_results(all_results, credit_parameters)
 
 
 def main() -> None:
@@ -65,7 +82,8 @@ def main() -> None:
         {"results": investment_results, "label": "With Investment"},
         {"results": overpayment_results, "label": "With Overpayment"},
     ]
-    plot_credit_results(all_results, credit_parameters)
+    fig = plot_credit_results(all_results, credit_parameters)
+    fig.show()
 
 
 if __name__ == "__main__":

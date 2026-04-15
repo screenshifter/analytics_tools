@@ -1,3 +1,4 @@
+import matplotlib.figure
 import matplotlib.pyplot as plt
 from typing import Any
 from finance.optimal_credit_length_estimation.detail.types import CreditCalculationResult
@@ -6,7 +7,7 @@ from finance.optimal_credit_length_estimation.detail.types import CreditCalculat
 def plot_credit_results(
     results_list: list[dict[str, dict[int, CreditCalculationResult]]],
     credit_parameters: dict[str, Any],
-) -> None:
+) -> matplotlib.figure.Figure:
     """Creates individual plots for each credit result metric over years"""
     from common.utils import log_error
 
@@ -104,4 +105,4 @@ def plot_credit_results(
     ax4.grid(True)
 
     plt.tight_layout()
-    plt.show()
+    return fig
