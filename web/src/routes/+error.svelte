@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 </script>
 
 <svelte:head>
-	<title>{$page.status} — {$page.error?.message ?? 'Not Found'}</title>
+	<title>{page.status} — {page.error?.message ?? 'Not Found'}</title>
 </svelte:head>
 
 <div class="wrap">
 	<div class="card">
-		<h1>{$page.status}</h1>
+		<h1>{page.status}</h1>
 		<p>Sorry — we couldn't find the page you were looking for.</p>
 		<p><a class="btn" href="/">Home page</a></p>
 	</div>
