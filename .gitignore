@@ -179,3 +179,16 @@ bazel-analytics_tools
 bazel-bin
 bazel-out
 bazel-testlogs
+
+.claude/agents
+.claude/commands
+.bash_profile
+.bashrc
+.gitconfig
+.gitmodules
+.idea
+.mcp.json
+.profile
+.ripgreprc
+.zprofile
+.zshrc
